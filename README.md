@@ -25,4 +25,11 @@ our office.
 ## Configuration
 
 `maxTestsPerLine` Maximum boxes to show per line (default : 5).
+`webservicesToCallOnError` Webservices to call when a test fail (you can use this to send notifications when a test fail),
+the `{{testname}}` string will be replaced by the name of the failing test. Example :
 
+```
+<webservicesToCallOnError>
+    <param><![CDATA[https://www.example.com/http2sms.cgi?message=Issue on unit test : {{testname}} !]]></param>
+</webservicesToCallOnError>
+```
