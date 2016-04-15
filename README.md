@@ -6,7 +6,7 @@ I mainly created it because we needed a way to detect a newly broken test by som
 our team in a blink by using a simple dashboard screen which is auto-refreshed somewhere in
 our office.
 
-![screenshot](https://cloud.githubusercontent.com/assets/1830223/13031021/6bc9a170-d2bd-11e5-9880-98821828f455.png)
+![screenshot](https://cloud.githubusercontent.com/assets/1830223/14560237/847eaac2-030e-11e6-89c8-e81145c03057.png)
 
 ## Basic usage
 
@@ -25,7 +25,7 @@ our office.
 ## Configuration
 
 `maxTestsPerLine` Maximum boxes to show per line (default : 5).
-`webservicesToCallOnError` Webservices to call when a test fail (you can use this to send notifications when a test fail),
+`webservicesToCallOnError` (since `0.2-SNAPSHOT`)  Webservices to call when a test fail (you can use this to send notifications when a test fail),
 the `{{testname}}` string will be replaced by the name of the failing test. Example :
 
 ```
