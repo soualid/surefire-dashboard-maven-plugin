@@ -45,6 +45,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -140,6 +142,15 @@ public class SurefireDashboardPlugin
         sink.sectionTitle1_();
         sink.section1_();
 
+        atts = new SinkEventAttributeSet();
+        atts.addAttribute( SinkEventAttributes.CLASS, "generatedOn" );
+        sink.unknown( "div", new Object[]{new Integer( HtmlMarkup.TAG_TYPE_START )}, atts );
+        SimpleDateFormat df = new SimpleDateFormat("yyyyy-mm-dd hh:mm:ss");
+
+        sink.text("Last published: " + df.format(new Date()));
+        sink.unknown( "div", new Object[]{new Integer( HtmlMarkup.TAG_TYPE_END )}, null );
+
+
         File[] files = surefireReportDirectory.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
             return name.toLowerCase().endsWith(".xml");
@@ -189,7 +200,7 @@ public class SurefireDashboardPlugin
                         String time = node.getAttribute("time");
 
                         atts = new SinkEventAttributeSet();
-                        boolean error = node.getElementsByTagName("error").getLength() > 0;
+                        boolean error = node.getElementsByTagName("error").getLength() > 0 || node.getElementsByTagName("failure").getLength() > 0;
                         atts.addAttribute( SinkEventAttributes.CLASS, "testCase " + (error ? "error" : "success") );
 
                         sink.unknown( "div", new Object[]{new Integer( HtmlMarkup.TAG_TYPE_START )}, atts );
