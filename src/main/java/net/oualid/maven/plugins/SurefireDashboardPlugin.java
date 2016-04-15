@@ -17,6 +17,13 @@ package net.oualid.maven.plugins;
  */
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.apache.maven.doxia.markup.HtmlMarkup;
 import org.apache.maven.doxia.sink.Sink;
 import org.apache.maven.doxia.sink.SinkEventAttributeSet;
@@ -38,6 +45,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
+import java.util.List;
 import java.util.Locale;
 
 @Mojo( name = "surefiredashboard", defaultPhase = LifecyclePhase.TEST, threadSafe = true,
@@ -62,6 +70,9 @@ public class SurefireDashboardPlugin
      */
     @Parameter(property = "maxTestsPerLine", defaultValue = "5", required = true)
     private int maxTestsPerLine;
+
+    @Parameter(property = "webservicesToCallOnError")
+    private List<String> webservicesToCallOnError;
 
     @Override
     protected Renderer getSiteRenderer() {
@@ -194,6 +205,13 @@ public class SurefireDashboardPlugin
                         sink.unknown( "span", new Object[]{new Integer( HtmlMarkup.TAG_TYPE_END )}, null );
                         sink.unknown( "div", new Object[]{new Integer( HtmlMarkup.TAG_TYPE_END )}, null );
 
+
+                        if (error && webservicesToCallOnError != null && webservicesToCallOnError.size() > 0) {
+                            for (String ws : webservicesToCallOnError) {
+                                ws = StringUtils.replace(ws, "{{testname}}", name);
+                                callWebservice(ws);
+                            }
+                        }
                     }
 
                     sink.unknown( "div", new Object[]{new Integer( HtmlMarkup.TAG_TYPE_END )}, null );
@@ -218,6 +236,26 @@ public class SurefireDashboardPlugin
         if ( !f.exists() )
         {
             f.mkdirs();
+        }
+    }
+
+    private void callWebservice(String url) {
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+        HttpGet httpGet = new HttpGet(url);
+        CloseableHttpResponse response = null;
+        try {
+            response = httpclient.execute(httpGet);
+            getLog().info(url + " > " + response.getStatusLine());
+            HttpEntity entity = response.getEntity();
+            EntityUtils.consume(entity);
+        } catch (IOException e) {
+            getLog().error("Error calling ws: " + url, e);
+        } finally {
+            try {
+                if (response != null) response.close();
+            } catch (IOException e) {
+                getLog().error("Error calling ws: " + url, e);
+            }
         }
     }
 
